@@ -1,0 +1,4 @@
+# Project exclude paths
+/mybatis-plugin/target/
+/mybatis-xml/target/
+/out/
