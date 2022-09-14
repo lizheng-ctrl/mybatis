@@ -151,7 +151,8 @@ public class Configuration {
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
-
+  //存放在一个map中的
+  //key是statement=com.tian.mybatis.mapper.UserMapper.selectById，value是MappedStatement
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
@@ -754,6 +755,7 @@ public class Configuration {
     return incompleteMethods;
   }
 
+
   public MappedStatement getMappedStatement(String id) {
     return this.getMappedStatement(id, true);
   }
@@ -786,6 +788,7 @@ public class Configuration {
   }
 
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    //type = UserMapper.class  sqlSession = DefaultSqlSession
     return mapperRegistry.getMapper(type, sqlSession);
   }
 

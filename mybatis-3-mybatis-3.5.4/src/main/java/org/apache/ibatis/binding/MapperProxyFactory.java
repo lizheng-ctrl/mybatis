@@ -44,6 +44,9 @@ public class MapperProxyFactory<T> {
   }
 
   @SuppressWarnings("unchecked")
+  //UserMapper 的类加载器
+  //接口是UserMapper
+  //h是mapperProxy对象
   protected T newInstance(MapperProxy<T> mapperProxy) {
     return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
   }

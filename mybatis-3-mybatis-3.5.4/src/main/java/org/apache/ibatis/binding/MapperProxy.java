@@ -33,6 +33,7 @@ import org.apache.ibatis.session.SqlSession;
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
+//果然实现了InvocationHandler接口
 public class MapperProxy<T> implements InvocationHandler, Serializable {
 
   private static final long serialVersionUID = -4724728412955527868L;
@@ -75,14 +76,16 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     }
     lookupConstructor = lookup;
   }
-
+  //调用userMapper.selectById()实质上是调用这个invoke方法
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      //如果是Object的方法toString()、hashCode()等方法
       //得到方法所在的类如果是Object,直接调用,不做拦截处理
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
       } else {
+        //创建MapperMethod对象
         return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
       }
     } catch (Throwable t) {

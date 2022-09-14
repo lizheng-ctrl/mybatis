@@ -50,7 +50,9 @@ public class MapperMethod {
   private final MethodSignature method;
 
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
+    //接口的全路径名加方法名 用来找到sql  和 sql 的类型
     this.command = new SqlCommand(config, mapperInterface, method);
+    //主要是封装的是返回值的类型和方法入参
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
@@ -220,25 +222,34 @@ public class MapperMethod {
 
     private final String name;
     private final SqlCommandType type;
-
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) {
       final String methodName = method.getName();
       final Class<?> declaringClass = method.getDeclaringClass();
+      //获得 MappedStatement 对象
       MappedStatement ms = resolveMappedStatement(mapperInterface, methodName, declaringClass,
           configuration);
+      // <2> 找不到 MappedStatement
       if (ms == null) {
+        // 如果有 @Flush 注解，则标记为 FLUSH 类型
         if (method.getAnnotation(Flush.class) != null) {
           name = null;
           type = SqlCommandType.FLUSH;
         } else {
+          // 抛出 BindingException 异常，如果找不到 MappedStatement
+          //（开发中容易见到的错误）说明该方法上，没有对应的 SQL 声明。
           throw new BindingException("Invalid bound statement (not found): "
               + mapperInterface.getName() + "." + methodName);
         }
+        //找到 MappedStatement
       } else {
+        // 获得 name
+        //id=com.tian.mybatis.mapper.UserMapper.selectById
         name = ms.getId();
+        // 获得 type=SELECT
         type = ms.getSqlCommandType();
+        //如果type=UNKNOWN
         if (type == SqlCommandType.UNKNOWN) {
-          throw new BindingException("Unknown execution method for: " + name);
+          throw new BindingException("Unknown execution method for: " + name);// 抛出 BindingException 异常，如果是 UNKNOWN 类型
         }
       }
     }
@@ -255,11 +266,16 @@ public class MapperMethod {
         Class<?> declaringClass, Configuration configuration) {
       //接口的包名+接口名+接口方法名 = sql 语句的id
       String statementId = mapperInterface.getName() + "." + methodName;
+      //如果有，获得 MappedStatement 对象，并返回
       if (configuration.hasStatement(statementId)) {
+        //mappedStatements.get(statementId);
+        //解析配置文件时候创建并保存Map<String, MappedStatement> mappedStatements中
         return configuration.getMappedStatement(statementId);
+        // 如果没有，并且当前方法就是 declaringClass 声明的，则说明真的找不到
       } else if (mapperInterface.equals(declaringClass)) {
         return null;
       }
+      // 遍历父接口，继续获得 MappedStatement 对象
       for (Class<?> superInterface : mapperInterface.getInterfaces()) {
         if (declaringClass.isAssignableFrom(superInterface)) {
           MappedStatement ms = resolveMappedStatement(superInterface, methodName,
@@ -269,6 +285,7 @@ public class MapperMethod {
           }
         }
       }
+      // 真的找不到，返回 null
       return null;
     }
   }

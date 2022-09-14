@@ -257,7 +257,7 @@ public class XPathParser {
       factory.setCoalescing(false);
       //设置是否展开实体类引用节点，这里是sql片段引用
       factory.setExpandEntityReferences(true);
-      //床架一个DocumentBuilder对象
+      //创建一个DocumentBuilder对象
       DocumentBuilder builder = factory.newDocumentBuilder();
       //设置解析mybatis xml 文档节点的解析器,也就是上面的xmlMapperEntityResolver
       builder.setEntityResolver(entityResolver);
